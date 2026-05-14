@@ -3,244 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epik Kart Atölyesi - Final</title>
+    <title>Epik Kart Atölyesi - Final v2 (Download)</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Marcellus+SC&display=swap" rel="stylesheet">
+    <!-- Gerekli Kütüphaneler -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        :root {
-            --gold: #d4af37;
-            --gold-dark: #aa8c2c;
-            --bg-dark: #121212;
-        }
+        :root { --gold: #d4af37; --gold-dark: #aa8c2c; --bg-dark: #121212; }
+        body { background-color: var(--bg-dark); color: #eee; font-family: 'Marcellus SC', serif; margin: 0; padding: 40px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: #eee;
-            font-family: 'Marcellus SC', serif;
-            margin: 0;
-            padding: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 40px;
-            min-height: 100vh;
-        }
-
-        /* --- MENÜ --- */
-        .controls {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid var(--gold-dark);
-            width: 300px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        }
-
+        /* --- MENÜ VE BUTONLAR --- */
+        .controls { background: #1e1e1e; padding: 20px; border-radius: 15px; border: 2px solid var(--gold-dark); width: 300px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 4px; color: var(--gold); font-size: 0.85rem; font-weight: bold; }
-        .form-group input, .form-group textarea {
-            width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid var(--gold-dark);
-            color: #fff; border-radius: 5px; font-family: 'Marcellus SC', serif; box-sizing: border-box;
+        .form-group input, .form-group textarea { width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid var(--gold-dark); color: #fff; border-radius: 5px; box-sizing: border-box; }
+        
+        .download-zone { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .btn-download { 
+            padding: 10px; cursor: pointer; border: none; border-radius: 5px; font-family: 'Cinzel', serif; font-weight: bold;
+            transition: 0.3s; color: #000; background: var(--gold);
         }
+        .btn-download:hover { background: #fff; transform: scale(1.02); }
+        .btn-pdf { background: #e74c3c; color: #fff; }
 
-        /* --- KART YAPISI --- */
+        /* --- KART YAPISI (SABİT İKONLU) --- */
+        .card-wrapper { position: relative; width: 424px; height: 584px; } /* Capture alanı için */
+        
         .card-border-outer {
-            position: relative; /* İkonlar buna göre absolute olacak */
-            padding: 12px;
+            position: relative; padding: 12px; border-radius: 24px; width: 400px; height: 560px;
             background: linear-gradient(135deg, #b89947 0%, #4a3b12 25%, #f3e5ab 50%, #4a3b12 75%, #b89947 100%);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            width: 400px;
-            height: 560px;
         }
 
         .card-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 14px;
-            background-color: #000;
-            background-size: cover;
-            background-position: center;
-            overflow: hidden; /* İçerideki ana görsel taşmasın */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* İsim üstte, logo/yetenek altta kalsın */
+            position: relative; width: 100%; height: 100%; border-radius: 14px; background-color: #000;
+            background-size: cover; background-position: center; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
 
-        .card-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.9) 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
+        .card-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.9) 100%); z-index: 1; }
 
-        /* --- 1. SABİT İKONLAR (ABSOLUTE) --- */
-        .stat-badge {
-            position: absolute;
-            width: 85px; height: 85px;
-            display: flex; justify-content: center; align-items: center;
-            font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #fff;
-            text-shadow: 2px 2px 5px #000;
-            background-size: contain; background-repeat: no-repeat;
-            z-index: 100; /* En üstte */
-        }
-        /* İkonları dış çerçevenin köşelerine sabitledik */
-        .stat-hp { top: 50px; left: -5px; background-image: url('hpicon.png'); }
+        /* SABİT İKONLAR */
+        .stat-badge { position: absolute; width: 85px; height: 85px; z-index: 100; background-size: contain; background-repeat: no-repeat; display: flex; justify-content: center; align-items: center; font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 2px 2px 5px #000; }
+        .stat-hp { top: 50px; left: 0px; background-image: url('hpicon.png'); }
         .stat-mana { top: 50px; right: -5px; background-image: url('manaicon.png'); }
         .stat-atk { bottom: 20px; left: -5px; background-image: url('saldırıicon.png'); }
         .stat-def { bottom: 20px; right: -5px; background-image: url('savunmaicon.png'); }
 
-        /* --- 2. DİNAMİK İSİM KUTUSU --- */
-        .card-name-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-            margin-top: 40px; /* İkonların altına girmemesi için boşluk */
-        }
+        /* DİNAMİK ALANLAR */
+        .card-name-wrapper { width: 100%; display: flex; justify-content: center; z-index: 10; margin-top: 20px; }
+        .card-name { width: 75%; padding: 10px; text-align: center; font-family: 'Cinzel', serif; font-size: 1.5rem; color: #fff; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), rgba(184,153,71,0.5), rgba(0,0,0,0.8), transparent); border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); word-wrap: break-word; }
 
-        .card-name {
-            width: 75%;
-            padding: 10px 15px;
-            text-align: center;
-            font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #fff;
-            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), rgba(184,153,71,0.5), rgba(0,0,0,0.8), transparent);
-            border-top: 1px solid var(--gold);
-            border-bottom: 1px solid var(--gold);
-            word-wrap: break-word; /* Uzun isimlerde aşağı kayar */
-        }
-
-        /* --- 3. DİNAMİK ALT BLOK (LOGO + PASİF + KÖKEN) --- */
-        .bottom-stack {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 25px; /* Alttaki ikonlara değmemesi için */
-            z-index: 10;
-        }
-
-        .class-logo {
-            width: 70px; height: 70px;
-            border-radius: 50%;
-            border: 3px solid var(--gold);
-            background-color: rgba(0,0,0,0.8);
-            background-size: 140% !important; /* PNG boşluk çözümü */
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            box-shadow: 0 0 15px rgba(0,0,0,1);
-        }
-
-        .passive-box {
-            width: 80%;
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid var(--gold-dark);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .passive-text { font-size: 0.85rem; color: #ddd; line-height: 1.2; }
-
-        .origin-box {
-            background: var(--gold-dark);
-            color: #000;
-            padding: 2px 15px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: -5px; /* Kutuya yakın dursun */
-        }
+        .bottom-stack { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 25px; z-index: 10; }
+        .class-logo { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--gold); background-color: rgba(0,0,0,0.8); background-size: 140% !important; background-position: center; background-repeat: no-repeat; }
+        .passive-box { width: 80%; background: rgba(0,0,0,0.85); border: 1px solid var(--gold-dark); border-radius: 8px; padding: 10px; text-align: center; }
+        .passive-text { font-size: 0.85rem; color: #ddd; }
+        .origin-box { background: var(--gold-dark); color: #000; padding: 2px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; text-transform: uppercase; margin-top: -5px; }
     </style>
 </head>
 <body>
 
     <div class="controls">
         <h2>Kart Atölyesi</h2>
-        <div class="form-group"><label>Görsel Seç:</label><input type="file" id="imgUpload"></div>
-        <div class="form-group"><label>Karakter İsmi:</label><input type="text" id="nameInput" value="YÜCE MUHAFIZ"></div>
-        <div class="form-group"><label>HP / Mana:</label>
-            <div style="display:flex; gap:5px;"><input type="number" id="hpInput" value="12"><input type="number" id="manaInput" value="5"></div>
+        <div class="form-group"><label>Görsel:</label><input type="file" id="imgUpload"></div>
+        <div class="form-group"><label>İsim:</label><input type="text" id="nameInput" value="YÜCE MUHAFIZ"></div>
+        <div class="form-group"><label>HP/Mana:</label><div style="display:flex;gap:5px;"><input type="number" id="hpInput" value="12"><input type="number" id="manaInput" value="5"></div></div>
+        <div class="form-group"><label>ATK/DEF:</label><div style="display:flex;gap:5px;"><input type="number" id="atkInput" value="8"><input type="number" id="defInput" value="7"></div></div>
+        <div class="form-group"><label>Logo:</label><input type="file" id="logoUpload"></div>
+        <div class="form-group"><label>Pasif:</label><textarea id="passiveInput">Her tur başında 2 HP yeniler.</textarea></div>
+        <div class="form-group"><label>Köken:</label><input type="text" id="originInput" value="GÖK TÜRKLER"></div>
+        
+        <div class="download-zone">
+            <button class="btn-download" onclick="downloadCard('png')">PNG OLARAK İNDİR</button>
+            <button class="btn-download" onclick="downloadCard('jpg')">JPG OLARAK İNDİR</button>
+            <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF OLARAK İNDİR</button>
         </div>
-        <div class="form-group"><label>ATK / DEF:</label>
-            <div style="display:flex; gap:5px;"><input type="number" id="atkInput" value="8"><input type="number" id="defInput" value="7"></div>
-        </div>
-        <div class="form-group"><label>Sınıf Logosu:</label><input type="file" id="logoUpload"></div>
-        <div class="form-group"><label>Pasif Yetenek:</label><textarea id="passiveInput">Her tur başında 2 HP yeniler.</textarea></div>
-        <div class="form-group"><label>Karakter Kökeni:</label><input type="text" id="originInput" value="GÖK TÜRKLER"></div>
     </div>
 
-    <!-- KART ALANI -->
-    <div class="card-border-outer">
-        <!-- SABİT İKONLAR (Kesinlikle oynamazlar) -->
+    <div id="captureArea" class="card-wrapper">
         <div class="stat-badge stat-hp" id="cardHp">12</div>
         <div class="stat-badge stat-mana" id="cardMana">5</div>
         <div class="stat-badge stat-atk" id="cardAtk">8</div>
         <div class="stat-badge stat-def" id="cardDef">7</div>
 
-        <div class="card-container" id="cardContainer">
-            <div class="card-overlay"></div>
-            
-            <!-- DİNAMİK ÜST KISIM -->
-            <div class="card-name-wrapper">
-                <div class="card-name" id="cardName">YÜCE MUHAFIZ</div>
-            </div>
-
-            <!-- DİNAMİK ALT KISIM -->
-            <div class="bottom-stack">
-                <div class="class-logo" id="cardLogo"></div>
-                <div class="passive-box">
-                    <div class="passive-text" id="cardPassive">Her tur başında 2 HP yeniler.</div>
+        <div class="card-border-outer">
+            <div class="card-container" id="cardContainer">
+                <div class="card-overlay"></div>
+                <div class="card-name-wrapper"><div class="card-name" id="cardName">YÜCE MUHAFIZ</div></div>
+                <div class="bottom-stack">
+                    <div class="class-logo" id="cardLogo"></div>
+                    <div class="passive-box"><div class="passive-text" id="cardPassive">Her tur başında 2 HP yeniler.</div></div>
+                    <div class="origin-box" id="cardOrigin">GÖK TÜRKLER</div>
                 </div>
-                <div class="origin-box" id="cardOrigin">GÖK TÜRKLER</div>
             </div>
         </div>
     </div>
 
     <script>
-        const cardContainer = document.getElementById('cardContainer');
-        const cardLogo = document.getElementById('cardLogo');
-
+        // INPUT GÜNCELLEMELERİ
         const inputs = {
-            name: { in: 'nameInput', out: 'cardName' },
-            hp: { in: 'hpInput', out: 'cardHp' },
-            mana: { in: 'manaInput', out: 'cardMana' },
-            atk: { in: 'atkInput', out: 'cardAtk' },
-            def: { in: 'defInput', out: 'cardDef' },
-            passive: { in: 'passiveInput', out: 'cardPassive' },
-            origin: { in: 'originInput', out: 'cardOrigin' }
+            name: 'nameInput', hp: 'hpInput', mana: 'manaInput', atk: 'atkInput', def: 'defInput', passive: 'passiveInput', origin: 'originInput'
+        };
+        const displays = {
+            name: 'cardName', hp: 'cardHp', mana: 'cardMana', atk: 'cardAtk', def: 'cardDef', passive: 'cardPassive', origin: 'cardOrigin'
         };
 
         Object.keys(inputs).forEach(key => {
-            document.getElementById(inputs[key].in).addEventListener('input', (e) => {
-                document.getElementById(inputs[key].out).innerText = e.target.value.toUpperCase();
+            document.getElementById(inputs[key]).addEventListener('input', (e) => {
+                document.getElementById(displays[key]).innerText = e.target.value.toUpperCase();
             });
         });
 
-        document.getElementById('imgUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => cardContainer.style.backgroundImage = `url('${ev.target.result}')`;
-                reader.readAsDataURL(file);
-            }
-        });
+        // RESİM YÜKLEMELERİ
+        const handleUpload = (inputId, targetId, isBg) => {
+            document.getElementById(inputId).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const target = document.getElementById(targetId);
+                        isBg ? target.style.backgroundImage = `url('${ev.target.result}')` : target.style.backgroundImage = `url('${ev.target.result}')`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        };
+        handleUpload('imgUpload', 'cardContainer', true);
+        handleUpload('logoUpload', 'cardLogo', false);
 
-        document.getElementById('logoUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => cardLogo.style.backgroundImage = `url('${ev.target.result}')`;
-                reader.readAsDataURL(file);
-            }
-        });
+        // --- İNDİRME FONKSİYONLARI ---
+        
+        async function downloadCard(format) {
+            const captureArea = document.getElementById('captureArea');
+            // Yüksek kalite için scale artırıldı
+            const canvas = await html2canvas(captureArea, {
+                useCORS: true,
+                scale: 3, 
+                backgroundColor: null
+            });
+            
+            const link = document.createElement('a');
+            link.download = `mitoloji-kart-${Date.now()}.${format}`;
+            link.href = canvas.toDataURL(`image/${format === 'jpg' ? 'jpeg' : 'png'}`, 0.9);
+            link.click();
+        }
+
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const captureArea = document.getElementById('captureArea');
+            
+            const canvas = await html2canvas(captureArea, { scale: 3 });
+            const imgData = canvas.toDataURL('image/png');
+            
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [canvas.width / 3, canvas.height / 3]
+            });
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 3, canvas.height / 3);
+            pdf.save(`mitoloji-kart-${Date.now()}.pdf`);
+        }
     </script>
 </body>
 </html>
