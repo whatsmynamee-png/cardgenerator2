@@ -120,19 +120,28 @@
         }
 
         /* Kart İsmi */
-        .card-name {
-            position: absolute;
-            top: 25px;
-            width: 100%;
-            text-align: center;
-            font-family: 'Cinzel', serif;
-            font-size: 1.9rem;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: var(--text-glow);
-            letter-spacing: 2px;
-            z-index: 10;
-        }
+        /* Karakter İsmi ve Çerçevesi */
+    .card-name {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%; /* Çerçevenin genişliği */
+    padding: 5px 10px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: var(--text-glow);
+    z-index: 10;
+
+    /* Sanatsal Çerçeve Efekti */
+    background: linear-gradient(90deg, transparent, rgba(184, 153, 71, 0.3), rgba(184, 153, 71, 0.6), rgba(184, 153, 71, 0.3), transparent);
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
 
         /* Özel İkonlu İstatistik Rozetleri */
         .stat-badge {
