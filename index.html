@@ -194,21 +194,25 @@
         }
 
         /* Sınıf Logosu */
-        .class-logo {
-            position: absolute;
-            bottom: 145px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            border: 3px solid var(--gold);
-            background-color: #1a1a1a;
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.9), 0 0 25px rgba(212, 175, 55, 0.5);
-            z-index: 10;
-        }
+       .class-logo {
+    position: absolute;
+    bottom: 145px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px; /* Biraz büyüterek daha dolgun gösteriyoruz */
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    background-color: rgba(0,0,0,0.5);
+    
+    /* PNG boşluklarını bitiren ayar */
+    background-size: 140% !important; /* %100'den büyük yaparak şeffaf kenarları dışarıda bırakıyoruz */
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    
+    box-shadow: 0 5px 15px rgba(0,0,0,0.9), 0 0 20px rgba(212, 175, 55, 0.4);
+    z-index: 10;
+}
 
         /* Pasif Yetenek Kutusu */
         .passive-box {
