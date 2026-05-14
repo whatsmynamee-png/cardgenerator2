@@ -3,80 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epik Kart Atölyesi - Final v2 (Download)</title>
-<!-- Seçtiğin fontları buradan projeye dahil et -->
+    <title>Epik Kart Atölyesi - Full Pro Edition</title>
+    <!-- Fontlar -->
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Marcellus+SC&display=swap" rel="stylesheet">
+    <!-- İndirme Kütüphaneleri -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         :root { --gold: #d4af37; --gold-dark: #aa8c2c; --bg-dark: #121212; }
-        body { background-color: var(--bg-dark); color: #eee; font-family: 'Marcellus SC', serif; margin: 0; padding: 40px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; }
+        body { background-color: var(--bg-dark); color: #eee; font-family: 'Marcellus SC', serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: flex-start; gap: 30px; }
 
-        /* --- MENÜ VE BUTONLAR --- */
-        .controls { background: #1e1e1e; padding: 20px; border-radius: 15px; border: 2px solid var(--gold-dark); width: 300px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        /* --- KONTROL PANELİ --- */
+        .controls { background: #1e1e1e; padding: 20px; border-radius: 15px; border: 2px solid var(--gold-dark); width: 280px; box-shadow: 0 0 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 4px; color: var(--gold); font-size: 0.85rem; font-weight: bold; }
-        .form-group input, .form-group textarea { width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid var(--gold-dark); color: #fff; border-radius: 5px; box-sizing: border-box; }
+        .form-group input, .form-group textarea { width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid var(--gold-dark); color: #fff; border-radius: 5px; box-sizing: border-box; font-family: sans-serif; }
         
-        .download-zone { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-        .btn-download { 
-            padding: 10px; cursor: pointer; border: none; border-radius: 5px; font-family: 'Cinzel', serif; font-weight: bold;
-            transition: 0.3s; color: #000; background: var(--gold);
-        }
-        .btn-download:hover { background: #fff; transform: scale(1.02); }
-        .btn-pdf { background: #e74c3c; color: #fff; }
+        /* GÖRSEL AYARLAMA BUTONLARI */
+        .adjust-panel { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-top: 5px; border: 1px solid #444; }
+        .adjust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+        .adj-btn { background: #444; color: #fff; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+        .adj-btn:hover { background: var(--gold); color: #000; }
+        .zoom-controls { display: flex; gap: 5px; }
+        .zoom-controls button { flex: 1; }
 
-        /* --- KART YAPISI (SABİT İKONLU) --- */
-        .card-wrapper { position: relative; width: 424px; height: 584px; } /* Capture alanı için */
+        .btn-group { margin-top: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .btn { padding: 10px; cursor: pointer; border: none; border-radius: 5px; font-family: 'Russo One', sans-serif; font-size: 0.8rem; transition: 0.3s; text-transform: uppercase; }
+        .btn-main { background: var(--gold); color: #000; }
+        .btn-pdf { background: #c0392b; color: #fff; }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        /* --- KART TASARIMI --- */
+        .card-wrapper { position: relative; width: 424px; height: 584px; }
         
         .card-border-outer {
             position: relative; padding: 12px; border-radius: 24px; width: 400px; height: 560px;
             background: linear-gradient(135deg, #b89947 0%, #4a3b12 25%, #f3e5ab 50%, #4a3b12 75%, #b89947 100%);
+            z-index: 5;
         }
 
         .card-container {
             position: relative; width: 100%; height: 100%; border-radius: 14px; background-color: #000;
-            background-size: cover; background-position: center; overflow: hidden;
-            display: flex; flex-direction: column; justify-content: space-between;
+            overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
         }
 
-        .card-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.9) 100%); z-index: 1; }
+        /* KARAKTER FOTOĞRAFI (Hareketli Katman) */
+        #cardImageLayer {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: 0; transition: none; /* Anlık tepki için transition kapalı */
+        }
 
         /* SABİT İKONLAR */
-        .stat-badge { position: absolute; width: 85px; height: 85px; z-index: 100; background-size: contain; background-repeat: no-repeat; display: flex; justify-content: center; align-items: center; font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #fff; text-shadow: 2px 2px 5px #000; }
-        .stat-hp { top: 50px; left: 0px; background-image: url('hpicon.png'); }
-        .stat-mana { top: 50px; right: -5px; background-image: url('manaicon.png'); }
-        .stat-atk { bottom: 20px; left: -5px; background-image: url('saldırıicon.png'); }
-        .stat-def { bottom: 20px; right: -5px; background-image: url('savunmaicon.png'); }
+        .stat-badge { position: absolute; width: 85px; height: 85px; z-index: 100; background-size: contain; background-repeat: no-repeat; display: flex; justify-content: center; align-items: center; font-family: 'Russo One', sans-serif; font-size: 1.8rem; color: #fff; text-shadow: 2px 2px 4px #000; }
+        .stat-hp { top: -5px; left: -5px; background-image: url('hpicon.png'); }
+        .stat-mana { top: -5px; right: -5px; background-image: url('manaicon.png'); }
+        .stat-atk { bottom: -5px; left: -5px; background-image: url('saldırıicon.png'); }
+        .stat-def { bottom: -5px; right: -5px; background-image: url('savunmaicon.png'); }
 
-        /* DİNAMİK ALANLAR */
         .card-name-wrapper { width: 100%; display: flex; justify-content: center; z-index: 10; margin-top: 40px; }
-        .card-name { width: 75%; padding: 10px; text-align: center; font-family: 'Russo One', sans-serif; font-size: 1.5rem; color: #fff; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), rgba(184,153,71,0.5), rgba(0,0,0,0.8), transparent); border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); word-wrap: break-word; }
+        .card-name { 
+            width: 80%; padding: 8px 12px; text-align: center; 
+            font-family: 'Russo One', sans-serif; font-size: 1.6rem; color: #fff; 
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.85), rgba(184,153,71,0.5), rgba(0,0,0,0.85), transparent); 
+            border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); 
+            word-wrap: break-word; text-transform: uppercase; letter-spacing: 1px;
+            text-shadow: 2px 2px 5px #000;
+        }
 
         .bottom-stack { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 25px; z-index: 10; }
-        .class-logo { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--gold); background-color: rgba(0,0,0,0.8); background-size: 140% !important; background-position: center; background-repeat: no-repeat; }
-        .passive-box { width: 80%; background: rgba(0,0,0,0.85); border: 1px solid var(--gold-dark); border-radius: 8px; padding: 10px; text-align: center; }
-        .passive-text { font-size: 0.85rem; color: #ddd; }
-        .origin-box { background: var(--gold-dark); color: #000; padding: 2px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; text-transform: uppercase; margin-top: -5px; }
+        .class-logo { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--gold); background-color: rgba(0,0,0,0.9); background-size: 140% !important; background-position: center; background-repeat: no-repeat; box-shadow: 0 0 15px #000; }
+        .passive-box { width: 80%; background: rgba(0,0,0,0.9); border: 1px solid var(--gold-dark); border-radius: 8px; padding: 10px; text-align: center; }
+        .passive-text { font-size: 0.85rem; color: #ccc; }
+        .origin-box { background: var(--gold-dark); color: #000; padding: 2px 18px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-top: -5px; }
+        
+        .card-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.9) 100%); z-index: 1; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <h2>Kart Atölyesi</h2>
-        <div class="form-group"><label>Görsel:</label><input type="file" id="imgUpload"></div>
-        <div class="form-group"><label>İsim:</label><input type="text" id="nameInput" value="YÜCE MUHAFIZ"></div>
-        <div class="form-group"><label>HP/Mana:</label><div style="display:flex;gap:5px;"><input type="number" id="hpInput" value="12"><input type="number" id="manaInput" value="5"></div></div>
-        <div class="form-group"><label>ATK/DEF:</label><div style="display:flex;gap:5px;"><input type="number" id="atkInput" value="8"><input type="number" id="defInput" value="7"></div></div>
-        <div class="form-group"><label>Logo:</label><input type="file" id="logoUpload"></div>
-        <div class="form-group"><label>Pasif:</label><textarea id="passiveInput">Her tur başında 2 HP yeniler.</textarea></div>
+        <h2 style="font-family:'Russo One'; color:var(--gold); text-align:center; margin-top:0;">ATÖLYE PRO</h2>
+        
+        <div class="form-group"><label>Karakter Görseli:</label><input type="file" id="imgUpload"></div>
+        
+        <!-- GÖRSEL AYARLAMA PANELİ -->
+        <div class="form-group">
+            <label>Görsel Konumu ve Boyutu:</label>
+            <div class="adjust-panel">
+                <div class="adjust-grid">
+                    <div></div><button class="adj-btn" onclick="moveImg(0, -10)">↑</button><div></div>
+                    <button class="adj-btn" onclick="moveImg(-10, 0)">←</button>
+                    <button class="adj-btn" onclick="resetImg()">◎</button>
+                    <button class="adj-btn" onclick="moveImg(10, 0)">→</button>
+                    <div></div><button class="adj-btn" onclick="moveImg(0, 10)">↓</button><div></div>
+                </div>
+                <div class="zoom-controls">
+                    <button class="adj-btn" onclick="zoomImg(0.1)">ZOOM +</button>
+                    <button class="adj-btn" onclick="zoomImg(-0.1)">ZOOM -</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group"><label>Karakter İsmi:</label><input type="text" id="nameInput" value="YÜCE MUHAFIZ"></div>
+        <div class="form-group"><label>HP / MANA:</label><div style="display:flex;gap:5px;"><input type="number" id="hpInput" value="12"><input type="number" id="manaInput" value="5"></div></div>
+        <div class="form-group"><label>Sınıf Logosu:</label><input type="file" id="logoUpload"></div>
+        <div class="form-group"><label>Pasif Yetenek:</label><textarea id="passiveInput">Her tur başında 2 HP yeniler.</textarea></div>
         <div class="form-group"><label>Köken:</label><input type="text" id="originInput" value="GÖK TÜRKLER"></div>
         
-        <div class="download-zone">
-            <button class="btn-download" onclick="downloadCard('png')">PNG OLARAK İNDİR</button>
-            <button class="btn-download" onclick="downloadCard('jpg')">JPG OLARAK İNDİR</button>
-            <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF OLARAK İNDİR</button>
+        <div class="btn-group">
+            <button class="btn btn-main" onclick="saveCard('png')">PNG İndir</button>
+            <button class="btn btn-pdf" onclick="savePDF()">PDF İndir</button>
         </div>
     </div>
 
@@ -87,9 +125,12 @@
         <div class="stat-badge stat-def" id="cardDef">7</div>
 
         <div class="card-border-outer">
-            <div class="card-container" id="cardContainer">
+            <div class="card-container">
+                <div id="cardImageLayer"></div> <!-- Hareket eden resim katmanı -->
                 <div class="card-overlay"></div>
+                
                 <div class="card-name-wrapper"><div class="card-name" id="cardName">YÜCE MUHAFIZ</div></div>
+
                 <div class="bottom-stack">
                     <div class="class-logo" id="cardLogo"></div>
                     <div class="passive-box"><div class="passive-text" id="cardPassive">Her tur başında 2 HP yeniler.</div></div>
@@ -100,69 +141,85 @@
     </div>
 
     <script>
-        // INPUT GÜNCELLEMELERİ
-        const inputs = {
-            name: 'nameInput', hp: 'hpInput', mana: 'manaInput', atk: 'atkInput', def: 'defInput', passive: 'passiveInput', origin: 'originInput'
-        };
-        const displays = {
-            name: 'cardName', hp: 'cardHp', mana: 'cardMana', atk: 'cardAtk', def: 'cardDef', passive: 'cardPassive', origin: 'cardOrigin'
+        // Görsel Konum Değişkenleri
+        let posX = 50;
+        let posY = 50;
+        let scale = 1;
+
+        const imgLayer = document.getElementById('cardImageLayer');
+
+        function updateImgTransform() {
+            imgLayer.style.backgroundPosition = `${posX}% ${posY}%`;
+            imgLayer.style.backgroundSize = `${scale * 100}%`;
+        }
+
+        function moveImg(x, y) {
+            posX += x;
+            posY += y;
+            updateImgTransform();
+        }
+
+        function zoomImg(s) {
+            scale += s;
+            if (scale < 0.1) scale = 0.1;
+            updateImgTransform();
+        }
+
+        function resetImg() {
+            posX = 50; posY = 50; scale = 1;
+            updateImgTransform();
+        }
+
+        // Klasik input ve resim yükleme kodları
+        const mapping = {
+            nameInput: 'cardName', hpInput: 'cardHp', manaInput: 'cardMana',
+            passiveInput: 'cardPassive', originInput: 'cardOrigin'
         };
 
-        Object.keys(inputs).forEach(key => {
-            document.getElementById(inputs[key]).addEventListener('input', (e) => {
-                document.getElementById(displays[key]).innerText = e.target.value.toUpperCase();
+        Object.keys(mapping).forEach(id => {
+            document.getElementById(id).addEventListener('input', (e) => {
+                document.getElementById(mapping[id]).innerText = e.target.value.toUpperCase();
             });
         });
 
-        // RESİM YÜKLEMELERİ
-        const handleUpload = (inputId, targetId, isBg) => {
-            document.getElementById(inputId).addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const target = document.getElementById(targetId);
-                        isBg ? target.style.backgroundImage = `url('${ev.target.result}')` : target.style.backgroundImage = `url('${ev.target.result}')`;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        };
-        handleUpload('imgUpload', 'cardContainer', true);
-        handleUpload('logoUpload', 'cardLogo', false);
+        document.getElementById('imgUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    imgLayer.style.backgroundImage = `url('${ev.target.result}')`;
+                    resetImg();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-        // --- İNDİRME FONKSİYONLARI ---
-        
-        async function downloadCard(format) {
-            const captureArea = document.getElementById('captureArea');
-            // Yüksek kalite için scale artırıldı
-            const canvas = await html2canvas(captureArea, {
-                useCORS: true,
-                scale: 3, 
-                backgroundColor: null
-            });
-            
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => document.getElementById('cardLogo').style.backgroundImage = `url('${ev.target.result}')`;
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function saveCard(type) {
+            const area = document.getElementById('captureArea');
+            const canvas = await html2canvas(area, { scale: 3, useCORS: true });
             const link = document.createElement('a');
-            link.download = `mitoloji-kart-${Date.now()}.${format}`;
-            link.href = canvas.toDataURL(`image/${format === 'jpg' ? 'jpeg' : 'png'}`, 0.9);
+            link.download = `kart-${Date.now()}.${type}`;
+            link.href = canvas.toDataURL(`image/png`);
             link.click();
         }
 
-        async function downloadPDF() {
+        async function savePDF() {
             const { jsPDF } = window.jspdf;
-            const captureArea = document.getElementById('captureArea');
-            
-            const canvas = await html2canvas(captureArea, { scale: 3 });
+            const area = document.getElementById('captureArea');
+            const canvas = await html2canvas(area, { scale: 3 });
             const imgData = canvas.toDataURL('image/png');
-            
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'px',
-                format: [canvas.width / 3, canvas.height / 3]
-            });
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 3, canvas.height / 3);
-            pdf.save(`mitoloji-kart-${Date.now()}.pdf`);
+            const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [canvas.width/3, canvas.height/3] });
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/3, canvas.height/3);
+            pdf.save(`kart-${Date.now()}.pdf`);
         }
     </script>
 </body>
