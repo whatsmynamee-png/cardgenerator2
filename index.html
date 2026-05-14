@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epik Kart Oluşturucu - Kesin Çözüm</title>
+    <title>Epik Kart Atölyesi - Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Marcellus+SC&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,52 +21,36 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 50px;
+            gap: 40px;
             min-height: 100vh;
         }
 
-        /* --- SOL MENÜ --- */
+        /* --- MENÜ --- */
         .controls {
             background: #1e1e1e;
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             border: 2px solid var(--gold-dark);
-            width: 320px;
+            width: 300px;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
 
-        .controls h2 {
-            font-family: 'Cinzel', serif;
-            text-align: center;
-            color: var(--gold);
-            margin-top: 0;
-            border-bottom: 1px solid var(--gold-dark);
-            padding-bottom: 10px;
-        }
-
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--gold); font-weight: bold; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; color: var(--gold); font-size: 0.85rem; font-weight: bold; }
         .form-group input, .form-group textarea {
-            width: 100%; padding: 10px; background: #2a2a2a; border: 1px solid var(--gold-dark);
+            width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid var(--gold-dark);
             color: #fff; border-radius: 5px; font-family: 'Marcellus SC', serif; box-sizing: border-box;
         }
 
-        /* --- KART YAPISI (ÇÖZÜM MERKEZİ) --- */
-        .card-wrapper {
-            position: relative; /* İkonlar buna göre hizalanacak */
-            width: 424px; /* Kart (400) + Padding (12*2) */
-            height: 584px;
-        }
-
+        /* --- KART YAPISI --- */
         .card-border-outer {
-            position: relative;
+            position: relative; /* İkonlar buna göre absolute olacak */
             padding: 12px;
             background: linear-gradient(135deg, #b89947 0%, #4a3b12 25%, #f3e5ab 50%, #4a3b12 75%, #b89947 100%);
             border-radius: 24px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             width: 400px;
             height: 560px;
-            z-index: 5;
         }
 
         .card-container {
@@ -77,74 +61,67 @@
             background-color: #000;
             background-size: cover;
             background-position: center;
-            overflow: hidden; /* İçerideki resim taşmasın */
+            overflow: hidden; /* İçerideki ana görsel taşmasın */
             display: flex;
             flex-direction: column;
-            align-items: center;
+            justify-content: space-between; /* İsim üstte, logo/yetenek altta kalsın */
         }
 
         .card-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 40%, rgba(0,0,0,0.9) 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.9) 100%);
             pointer-events: none;
+            z-index: 1;
         }
 
-        /* --- İKONLAR (TAM GÖRÜNÜM İÇİN DIŞARIDA) --- */
+        /* --- 1. SABİT İKONLAR (ABSOLUTE) --- */
         .stat-badge {
             position: absolute;
-            width: 90px; 
-            height: 90px;
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            font-family: 'Cinzel', serif; 
-            font-size: 2rem; 
-            font-weight: 900; 
-            color: #fff;
-            text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 0 10px #000;
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 100; /* Her şeyin üstünde */
+            width: 85px; height: 85px;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #fff;
+            text-shadow: 2px 2px 5px #000;
+            background-size: contain; background-repeat: no-repeat;
+            z-index: 100; /* En üstte */
+        }
+        /* İkonları dış çerçevenin köşelerine sabitledik */
+        .stat-hp { top: -5px; left: -5px; background-image: url('hpicon.png'); }
+        .stat-mana { top: -5px; right: -5px; background-image: url('manaicon.png'); }
+        .stat-atk { bottom: -5px; left: -5px; background-image: url('saldırıicon.png'); }
+        .stat-def { bottom: -5px; right: -5px; background-image: url('savunmaicon.png'); }
+
+        /* --- 2. DİNAMİK İSİM KUTUSU --- */
+        .card-name-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+            margin-top: 40px; /* İkonların altına girmemesi için boşluk */
         }
 
-        /* Köşelerden hafif taşırarak epik bir görüntü sağlıyoruz */
-        .stat-hp { top: -10px; left: -10px; background-image: url('hpicon.png'); }
-        .stat-mana { top: -10px; right: -10px; background-image: url('manaicon.png'); }
-        .stat-atk { bottom: -10px; left: -10px; background-image: url('saldırıicon.png'); }
-        .stat-def { bottom: -10px; right: -10px; background-image: url('savunmaicon.png'); }
-
-        /* --- DİNAMİK İSİM --- */
         .card-name {
-            position: relative;
-            margin-top: 40px;
-            width: 80%;
+            width: 75%;
             padding: 10px 15px;
             text-align: center;
             font-family: 'Cinzel', serif;
             font-size: 1.5rem;
             font-weight: 900;
             color: #fff;
-            z-index: 10;
             background: linear-gradient(90deg, transparent, rgba(0,0,0,0.8), rgba(184,153,71,0.5), rgba(0,0,0,0.8), transparent);
             border-top: 1px solid var(--gold);
             border-bottom: 1px solid var(--gold);
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-wrap: break-word;
+            word-wrap: break-word; /* Uzun isimlerde aşağı kayar */
         }
 
-        /* --- ALT DİNAMİK GRUP --- */
-        .bottom-content {
-            position: absolute;
-            bottom: 20px;
-            left: 0; right: 0;
+        /* --- 3. DİNAMİK ALT BLOK (LOGO + PASİF + KÖKEN) --- */
+        .bottom-stack {
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            margin-bottom: 25px; /* Alttaki ikonlara değmemesi için */
             z-index: 10;
         }
 
@@ -152,15 +129,15 @@
             width: 70px; height: 70px;
             border-radius: 50%;
             border: 3px solid var(--gold);
-            background-color: #000;
-            background-size: 145% !important; /* PNG boşluk çözümü */
+            background-color: rgba(0,0,0,0.8);
+            background-size: 140% !important; /* PNG boşluk çözümü */
             background-position: center !important;
             background-repeat: no-repeat !important;
-            box-shadow: 0 5px 15px rgba(0,0,0,1);
+            box-shadow: 0 0 15px rgba(0,0,0,1);
         }
 
         .passive-box {
-            width: 85%;
+            width: 80%;
             background: rgba(0, 0, 0, 0.85);
             border: 1px solid var(--gold-dark);
             border-radius: 8px;
@@ -168,18 +145,18 @@
             text-align: center;
         }
 
-        .passive-text { font-size: 0.9rem; color: #eee; }
+        .passive-text { font-size: 0.85rem; color: #ddd; line-height: 1.2; }
 
         .origin-box {
-            background: linear-gradient(to bottom, #d4af37, #aa8c2c);
+            background: var(--gold-dark);
             color: #000;
-            padding: 3px 20px;
+            padding: 2px 15px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            margin-top: -5px; /* Kutuya yakın dursun */
         }
     </style>
 </head>
@@ -187,41 +164,42 @@
 
     <div class="controls">
         <h2>Kart Atölyesi</h2>
-        <div class="form-group"><label>Ana Görsel:</label><input type="file" id="imgUpload"></div>
+        <div class="form-group"><label>Görsel Seç:</label><input type="file" id="imgUpload"></div>
         <div class="form-group"><label>Karakter İsmi:</label><input type="text" id="nameInput" value="YÜCE MUHAFIZ"></div>
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex:1"><label>HP:</label><input type="number" id="hpInput" value="12"></div>
-            <div class="form-group" style="flex:1"><label>Mana:</label><input type="number" id="manaInput" value="5"></div>
+        <div class="form-group"><label>HP / Mana:</label>
+            <div style="display:flex; gap:5px;"><input type="number" id="hpInput" value="12"><input type="number" id="manaInput" value="5"></div>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex:1"><label>ATK:</label><input type="number" id="atkInput" value="8"></div>
-            <div class="form-group" style="flex:1"><label>DEF:</label><input type="number" id="defInput" value="7"></div>
+        <div class="form-group"><label>ATK / DEF:</label>
+            <div style="display:flex; gap:5px;"><input type="number" id="atkInput" value="8"><input type="number" id="defInput" value="7"></div>
         </div>
         <div class="form-group"><label>Sınıf Logosu:</label><input type="file" id="logoUpload"></div>
         <div class="form-group"><label>Pasif Yetenek:</label><textarea id="passiveInput">Her tur başında 2 HP yeniler.</textarea></div>
         <div class="form-group"><label>Karakter Kökeni:</label><input type="text" id="originInput" value="GÖK TÜRKLER"></div>
     </div>
 
-    <!-- KARTIN TÜMÜNÜ KAPSAYAN YENİ WRAPPER -->
-    <div class="card-wrapper">
-        <!-- İKONLAR ARTIK WRAPPER'A GÖRE HİZALANIYOR, KESİLMELERİ İMKANSIZ -->
+    <!-- KART ALANI -->
+    <div class="card-border-outer">
+        <!-- SABİT İKONLAR (Kesinlikle oynamazlar) -->
         <div class="stat-badge stat-hp" id="cardHp">12</div>
         <div class="stat-badge stat-mana" id="cardMana">5</div>
         <div class="stat-badge stat-atk" id="cardAtk">8</div>
         <div class="stat-badge stat-def" id="cardDef">7</div>
 
-        <div class="card-border-outer">
-            <div class="card-container" id="cardContainer">
-                <div class="card-overlay"></div>
+        <div class="card-container" id="cardContainer">
+            <div class="card-overlay"></div>
+            
+            <!-- DİNAMİK ÜST KISIM -->
+            <div class="card-name-wrapper">
                 <div class="card-name" id="cardName">YÜCE MUHAFIZ</div>
-                
-                <div class="bottom-content">
-                    <div class="class-logo" id="cardLogo"></div>
-                    <div class="passive-box">
-                        <div class="passive-text" id="cardPassive">Her tur başında 2 HP yeniler.</div>
-                    </div>
-                    <div class="origin-box" id="cardOrigin">GÖK TÜRKLER</div>
+            </div>
+
+            <!-- DİNAMİK ALT KISIM -->
+            <div class="bottom-stack">
+                <div class="class-logo" id="cardLogo"></div>
+                <div class="passive-box">
+                    <div class="passive-text" id="cardPassive">Her tur başında 2 HP yeniler.</div>
                 </div>
+                <div class="origin-box" id="cardOrigin">GÖK TÜRKLER</div>
             </div>
         </div>
     </div>
@@ -230,20 +208,19 @@
         const cardContainer = document.getElementById('cardContainer');
         const cardLogo = document.getElementById('cardLogo');
 
-        const fields = {
-            name: { input: 'nameInput', display: 'cardName' },
-            hp: { input: 'hpInput', display: 'cardHp' },
-            mana: { input: 'manaInput', display: 'cardMana' },
-            atk: { input: 'atkInput', display: 'cardAtk' },
-            def: { input: 'defInput', display: 'cardDef' },
-            passive: { input: 'passiveInput', display: 'cardPassive' },
-            origin: { input: 'originInput', display: 'cardOrigin' }
+        const inputs = {
+            name: { in: 'nameInput', out: 'cardName' },
+            hp: { in: 'hpInput', out: 'cardHp' },
+            mana: { in: 'manaInput', out: 'cardMana' },
+            atk: { in: 'atkInput', out: 'cardAtk' },
+            def: { in: 'defInput', out: 'cardDef' },
+            passive: { in: 'passiveInput', out: 'cardPassive' },
+            origin: { in: 'originInput', out: 'cardOrigin' }
         };
 
-        Object.keys(fields).forEach(key => {
-            const field = fields[key];
-            document.getElementById(field.input).addEventListener('input', function(e) {
-                document.getElementById(field.display).innerText = e.target.value.toUpperCase();
+        Object.keys(inputs).forEach(key => {
+            document.getElementById(inputs[key].in).addEventListener('input', (e) => {
+                document.getElementById(inputs[key].out).innerText = e.target.value.toUpperCase();
             });
         });
 
